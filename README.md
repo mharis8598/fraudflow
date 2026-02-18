@@ -2,11 +2,11 @@
 
 **Production-grade credit card fraud detection with full MLOps pipeline.**
 
-![CI](https://github.com/mharis8598/fraudflow/actions/workflows/ci.yml/badge.svg)
-![CD](https://github.com/mharis8598/fraudflow/actions/workflows/cd.yml/badge.svg)
-![Python](https://img.shields.io/badge/python-3.11+-blue.svg)
-![Docker](https://img.shields.io/badge/docker-ready-blue.svg)
-![License](https://img.shields.io/badge/license-MIT-green.svg)
+[![CI](https://github.com/mharis8598/fraudflow/actions/workflows/ci.yml/badge.svg)](https://github.com/mharis8598/fraudflow/actions/workflows/ci.yml)
+[![CD](https://github.com/mharis8598/fraudflow/actions/workflows/cd.yml/badge.svg)](https://github.com/mharis8598/fraudflow/actions/workflows/cd.yml)
+[![Python](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
+[![Docker](https://img.shields.io/badge/docker-ready-blue.svg)](https://www.docker.com/)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
 ---
 
@@ -18,13 +18,23 @@ Credit card fraud costs financial institutions billions annually. Rule-based det
 
 FraudFlow is an **end-to-end fraud detection system** — not just a model in a notebook, but a fully deployed, containerized ML pipeline with:
 
-- 🤖 **XGBoost classifier** achieving **0.97+ ROC AUC** on 284K transactions
+- 🤖 **XGBoost classifier** achieving **0.97 ROC AUC** on 284K transactions
 - 🚀 **FastAPI** serving real-time predictions with auto-generated docs
 - 📊 **MLflow** experiment tracking with model versioning
 - 📈 **Streamlit** monitoring dashboard with drift detection
 - 🐳 **Docker Compose** for one-command deployment
 - ⚡ **GitHub Actions** CI/CD with automated testing and image builds
 - 🔍 **Evidently AI** data drift monitoring
+
+## Screenshots
+
+### FastAPI — Swagger UI (`/docs`)
+
+![API Documentation](docs/api_docs.png)
+
+### Streamlit — Monitoring Dashboard
+
+![Monitoring Dashboard](docs/dashboard.png)
 
 ## Architecture
 
@@ -53,6 +63,7 @@ FraudFlow is an **end-to-end fraud detection system** — not just a model in a 
 ## Quick Start
 
 ### Prerequisites
+
 - Python 3.11+
 - Docker & Docker Compose (optional)
 
@@ -114,36 +125,41 @@ curl -X POST http://localhost:8000/predict \
 ```
 
 **Response:**
+
 ```json
 {
-  "fraud_probability": 0.9423,
+  "fraud_probability": 0.9996,
   "is_fraud": true,
   "risk_level": "CRITICAL",
-  "threshold": 0.52
+  "threshold": 0.89
 }
 ```
 
 ### Health Check
+
 ```bash
 curl http://localhost:8000/health
 ```
 
 ### Prediction Metrics
+
 ```bash
 curl http://localhost:8000/metrics
 ```
 
 ## Model Performance
 
-| Metric    | Score |
-|-----------|-------|
-| ROC AUC   | 0.97+ |
-| Precision | 0.90+ |
-| Recall    | 0.82+ |
-| F1 Score  | 0.85+ |
-| Latency   | <50ms |
+| Metric | Score |
+| --- | --- |
+| ROC AUC | 0.971 |
+| Precision | 0.936 |
+| Recall | 0.768 |
+| F1 Score | 0.844 |
+| Optimal Threshold | 0.89 |
+| False Positives | 5 / 56,651 |
+| Latency | <50ms |
 
-*Metrics achieved on the Kaggle Credit Card Fraud dataset (284,807 transactions, 492 fraudulent).*
+*Trained on the [Kaggle Credit Card Fraud dataset](https://www.kaggle.com/datasets/mlg-ulb/creditcardfraud) — 283,726 transactions after deduplication (492 fraudulent, 0.17% fraud rate). Threshold tuned to maximize F1 score.*
 
 ## Project Structure
 
@@ -161,7 +177,14 @@ fraudflow/
 │   ├── predict.py         # Inference module
 │   └── drift.py           # Data drift detection
 ├── dashboard/             # Streamlit monitoring UI
-├── tests/                 # Unit + API tests
+├── tests/                 # 51 tests (76% coverage)
+│   ├── conftest.py        # Shared fixtures
+│   ├── test_api.py        # API endpoint tests
+│   ├── test_data_processing.py
+│   ├── test_predict.py    # Predictor + risk level tests
+│   ├── test_train.py      # Training pipeline tests
+│   └── test_drift.py      # Drift detection tests
+├── docs/                  # Screenshots
 ├── Dockerfile             # Container definition
 ├── docker-compose.yml     # Multi-service orchestration
 ├── Makefile               # Developer commands
@@ -170,17 +193,18 @@ fraudflow/
 
 ## Tech Stack
 
-| Component        | Technology                |
-|------------------|---------------------------|
-| ML Framework     | scikit-learn, XGBoost     |
-| API              | FastAPI + Uvicorn         |
-| Experiment Track | MLflow                    |
-| Dashboard        | Streamlit + Plotly        |
-| Drift Detection  | Evidently AI              |
-| Containerization | Docker + Docker Compose   |
-| CI/CD            | GitHub Actions            |
-| Testing          | pytest + coverage         |
-| Linting          | Ruff                      |
+| Component | Technology |
+| --- | --- |
+| ML Framework | scikit-learn, XGBoost |
+| Class Imbalance | SMOTE (imbalanced-learn) |
+| API | FastAPI + Uvicorn |
+| Experiment Tracking | MLflow |
+| Dashboard | Streamlit + Plotly |
+| Drift Detection | Evidently AI |
+| Containerization | Docker + Docker Compose |
+| CI/CD | GitHub Actions |
+| Testing | pytest (51 tests, 76% coverage) |
+| Linting | Ruff |
 
 ## Development
 
@@ -199,19 +223,19 @@ make docker-down   # Stop all services
 ## What I Learned
 
 - **MLOps is the gap:** Building a model is 20% of the work. Serving, monitoring, and maintaining it is the other 80%.
+- **Threshold tuning > accuracy:** For imbalanced datasets (0.17% fraud rate), optimizing the classification threshold to 0.89 was more impactful than model tuning — it pushed precision to 94% while keeping recall at 77%.
 - **Docker Compose orchestration:** Running multiple services (API + MLflow + dashboard) with shared volumes and networking.
 - **CI/CD for ML:** Automated testing ensures model code doesn't break, and automated Docker builds ensure deployability.
 - **Drift detection matters:** Models degrade silently — Evidently AI catches distribution shifts before they impact predictions.
-- **Threshold tuning > accuracy:** For imbalanced datasets, optimizing the classification threshold has more business impact than optimizing model accuracy.
 
 ## Future Improvements
 
-- [ ] PostgreSQL for prediction logging and historical analysis
-- [ ] Automated retraining triggered by drift detection
-- [ ] Prometheus + Grafana for production-grade monitoring
-- [ ] SHAP explanations for model interpretability
-- [ ] A/B testing between model versions
-- [ ] Kubernetes deployment with Terraform IaC
+- PostgreSQL for prediction logging and historical analysis
+- Automated retraining triggered by drift detection
+- Prometheus + Grafana for production-grade monitoring
+- SHAP explanations for model interpretability
+- A/B testing between model versions
+- Kubernetes deployment with Terraform IaC
 
 ## Author
 
