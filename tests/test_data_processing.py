@@ -4,26 +4,9 @@ Tests for data processing pipeline.
 
 import numpy as np
 import pandas as pd
-import pytest
 from sklearn.preprocessing import StandardScaler
 
 from src.data_processing import apply_smote, clean_data, preprocess_features, split_data
-
-
-@pytest.fixture
-def sample_data():
-    """Create a small synthetic dataset mimicking credit card data."""
-    np.random.seed(42)
-    n = 1000
-    data = {
-        "Time": np.random.uniform(0, 172792, n),
-        "Amount": np.random.exponential(88, n),
-        "Class": np.concatenate([np.zeros(980), np.ones(20)]).astype(int),
-    }
-    for i in range(1, 29):
-        data[f"V{i}"] = np.random.randn(n)
-
-    return pd.DataFrame(data)
 
 
 class TestCleanData:
