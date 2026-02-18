@@ -1,0 +1,25 @@
+[project]
+name = "fraudflow"
+version = "1.0.0"
+description = "Production-grade credit card fraud detection with MLOps pipeline"
+authors = [{name = "Mikhail Haris"}]
+requires-python = ">=3.11"
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I"]
+ignore = ["E501"]  # Line length handled by formatter
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short"
+
+[tool.coverage.run]
+source = ["src", "api"]
+omit = ["tests/*", "dashboard/*"]
